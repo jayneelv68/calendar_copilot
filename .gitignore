@@ -9,3 +9,4 @@ xcuserdata/
 AnayasCoPilot.app/
 dist/
 *.zip
+.secrets/

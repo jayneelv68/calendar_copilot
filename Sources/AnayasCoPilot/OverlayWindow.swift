@@ -41,6 +41,35 @@ final class WelcomeWindow: NSWindow {
     }
 }
 
+// Fade helpers on NSWindow so the overlay/welcome never pop in or out abruptly.
+extension NSWindow {
+    func fadeIn(duration: TimeInterval = 0.35, activate: Bool = false) {
+        self.alphaValue = 0
+        if activate {
+            NSApp.activate(ignoringOtherApps: true)
+            self.makeKeyAndOrderFront(nil)
+        } else {
+            self.orderFrontRegardless()
+        }
+        NSAnimationContext.runAnimationGroup { ctx in
+            ctx.duration = duration
+            ctx.timingFunction = CAMediaTimingFunction(name: .easeOut)
+            self.animator().alphaValue = 1
+        }
+    }
+
+    func fadeOut(duration: TimeInterval = 0.35, completion: @escaping () -> Void) {
+        NSAnimationContext.runAnimationGroup({ ctx in
+            ctx.duration = duration
+            ctx.timingFunction = CAMediaTimingFunction(name: .easeIn)
+            self.animator().alphaValue = 0
+        }, completionHandler: { [weak self] in
+            self?.orderOut(nil)
+            completion()
+        })
+    }
+}
+
 @MainActor
 final class OverlayPresenter {
     static let shared = OverlayPresenter()
@@ -59,7 +88,7 @@ final class OverlayPresenter {
             host.frame = (NSScreen.main ?? NSScreen.screens.first!).frame
             let win = OverlayWindow(contentView: host)
             self.current = win
-            win.orderFrontRegardless()
+            win.fadeIn(duration: 0.30)
         }
     }
 
@@ -74,8 +103,7 @@ final class OverlayPresenter {
             host.frame = (NSScreen.main ?? NSScreen.screens.first!).frame
             let win = WelcomeWindow(contentView: host)
             self.current = win
-            NSApp.activate(ignoringOtherApps: true)
-            win.makeKeyAndOrderFront(nil)
+            win.fadeIn(duration: 0.40, activate: true)
         }
     }
 
@@ -92,12 +120,14 @@ final class OverlayPresenter {
     }
 
     private func dismissCurrent() {
-        current?.orderOut(nil)
+        guard let win = current else { presenting = false; pump(); return }
         current = nil
-        presenting = false
-        // Small gap between queued animations.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-            self?.pump()
+        win.fadeOut(duration: 0.35) { [weak self] in
+            self?.presenting = false
+            // Small gap between queued animations.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+                self?.pump()
+            }
         }
     }
 }

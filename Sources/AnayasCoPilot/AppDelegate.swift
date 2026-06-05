@@ -99,10 +99,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func installStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         if let button = statusItem.button {
-            button.image = NSImage(systemSymbolName: "airplane",
-                                   accessibilityDescription: "Anaya's Co-Pilot")
+            button.image = Self.makeMenubarPlaneIcon()
         }
         rebuildMenu()
+    }
+
+    // Render the same horizontal PlaneShape used everywhere into a small template
+    // image so the menu-bar icon matches the flight overlay and welcome card.
+    // Template images get auto-tinted by macOS for light/dark menu-bar themes.
+    private static func makeMenubarPlaneIcon() -> NSImage {
+        let renderer = ImageRenderer(content:
+            PlaneShape()
+                .fill(Color.black)
+                .frame(width: 22, height: 14)
+                .padding(1)
+        )
+        renderer.scale = NSScreen.main?.backingScaleFactor ?? 2.0
+        let img = renderer.nsImage
+            ?? NSImage(systemSymbolName: "airplane", accessibilityDescription: "Anaya's Co-Pilot")!
+        img.isTemplate = true
+        img.accessibilityDescription = "Anaya's Co-Pilot"
+        return img
     }
 
     private func rebuildMenu() {
