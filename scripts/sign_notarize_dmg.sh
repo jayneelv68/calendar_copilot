@@ -14,6 +14,7 @@ APP_DIR="$ROOT/build/${APP_NAME}.app"
 DMG_PATH="$ROOT/dist/AnayasCoPilot.dmg"
 ENT="$ROOT/scripts/entitlements.plist"
 PROFILE="notary-profile"
+TEAM_ID="XVD66LAV3K"
 
 if [ ! -d "$APP_DIR" ]; then
     echo "ERROR: $APP_DIR not found; run scripts/build_app.sh first." >&2
