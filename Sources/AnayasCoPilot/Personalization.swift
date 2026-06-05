@@ -42,13 +42,13 @@ public struct Personalization {
     ]
     public var bannerFallbackNoTitle: String = "Anaya, something's on the runway in 5"
 
-    // Visuals — sleek navy paper airplane against a warm sunset banner.
-    // Alternates to try (uncomment a pair):
-    //   forest green: Color(red: 0.18, green: 0.38, blue: 0.30) + sage→cream banner
-    //   slate gray:   Color(red: 0.28, green: 0.32, blue: 0.40) + amber→peach banner
-    public var planeColor: Color = Color(red: 0.12, green: 0.23, blue: 0.41)        // ~#1F3A68 deep navy
-    public var bannerGradientStart: Color = Color(red: 1.00, green: 0.69, blue: 0.48) // ~#FFB07A peach
-    public var bannerGradientEnd: Color = Color(red: 0.91, green: 0.61, blue: 0.24)   // ~#E89B3C amber
+    // Visuals — vibrant purple plane against a pink→purple gradient banner.
+    // Alternates (uncomment a set):
+    //   hot pink:        plane #EC4899, banner #FBCFE8 → #C4B5FD
+    //   deep magenta:    plane #C026D3, banner #F0ABFC → #E9D5FF
+    public var planeColor: Color = Color(red: 0.486, green: 0.227, blue: 0.929)       // ~#7C3AED vivid purple
+    public var bannerGradientStart: Color = Color(red: 0.957, green: 0.447, blue: 0.714) // ~#F472B6 pink
+    public var bannerGradientEnd: Color = Color(red: 0.655, green: 0.545, blue: 0.980)   // ~#A78BFA lavender
     public var bannerTextColor: Color = Color.white
 
     // Animation timing.

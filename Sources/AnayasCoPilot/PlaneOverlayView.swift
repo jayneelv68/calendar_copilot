@@ -1,33 +1,20 @@
 import SwiftUI
 
-// Sleek paper-airplane silhouette drawn in code. Points forward (right),
-// crisp angular planes, reads cleanly at any size.
-struct PlaneShape: Shape {
-    func path(in rect: CGRect) -> Path {
-        var p = Path()
-        let w = rect.width, h = rect.height
-        // Outer paper-airplane outline:
-        //   nose at the right, swept-back tail on the left, slight underside notch.
-        p.move(to: CGPoint(x: w * 1.00, y: h * 0.50))   // nose tip
-        p.addLine(to: CGPoint(x: w * 0.10, y: h * 0.05)) // top tail corner
-        p.addLine(to: CGPoint(x: w * 0.32, y: h * 0.50)) // inner crease meeting nose
-        p.addLine(to: CGPoint(x: w * 0.10, y: h * 0.95)) // bottom tail corner
-        p.closeSubpath()
-        return p
-    }
-}
-
-// Folded-paper crease — slightly darker triangle inside the outline that
-// gives the plane its 3D paper look without needing layers of fill.
-struct PlaneCreaseShape: Shape {
-    func path(in rect: CGRect) -> Path {
-        var p = Path()
-        let w = rect.width, h = rect.height
-        p.move(to: CGPoint(x: w * 1.00, y: h * 0.50))   // nose
-        p.addLine(to: CGPoint(x: w * 0.10, y: h * 0.95)) // bottom tail
-        p.addLine(to: CGPoint(x: w * 0.32, y: h * 0.50)) // crease pivot
-        p.closeSubpath()
-        return p
+// Plane icon — Apple's SF Symbol "airplane" (proper side-view jet), rotated so
+// it flies horizontally to the right and tinted with the personalization color.
+struct PlaneIcon: View {
+    let color: Color
+    let size: CGFloat
+    var body: some View {
+        Image(systemName: "airplane")
+            .resizable()
+            .scaledToFit()
+            .symbolRenderingMode(.hierarchical)
+            .foregroundStyle(color)
+            // SF Symbol "airplane" points up-and-to-the-right by default;
+            // rotating 45° clockwise makes the nose point straight right.
+            .rotationEffect(.degrees(45))
+            .frame(width: size, height: size)
     }
 }
 
@@ -117,16 +104,10 @@ struct PlaneFlightView: View {
                 DottedContrailView(color: personalization.planeColor)
                     .position(x: planeX + planeW + 40, y: y + planeH/2)
 
-                // Plane — paper-airplane silhouette plus a darker crease for depth.
-                ZStack {
-                    PlaneShape().fill(personalization.planeColor)
-                    PlaneCreaseShape()
-                        .fill(personalization.planeColor.opacity(0.55))
-                        .blendMode(.multiply)
-                }
-                .frame(width: planeW, height: planeH)
-                .shadow(color: .black.opacity(0.22), radius: 6, x: 0, y: 4)
-                .position(x: planeX, y: y + planeH/2)
+                // Plane — Apple's SF Symbol airplane, tinted and flying right.
+                PlaneIcon(color: personalization.planeColor, size: planeW)
+                    .shadow(color: .black.opacity(0.22), radius: 6, x: 0, y: 4)
+                    .position(x: planeX, y: y + planeH/2)
 
                 // Sparkle puff near end.
                 if puff {

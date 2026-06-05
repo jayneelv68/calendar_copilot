@@ -22,17 +22,9 @@ struct WelcomeView: View {
                 let w = geo.size.width
                 let h = geo.size.height
                 let planeX = -150 + (w + 300) * planeProgress
-                ZStack {
-                    ZStack {
-                        PlaneShape().fill(personalization.planeColor)
-                        PlaneCreaseShape()
-                            .fill(personalization.planeColor.opacity(0.55))
-                            .blendMode(.multiply)
-                    }
-                    .frame(width: 90, height: 55)
+                PlaneIcon(color: personalization.planeColor, size: 70)
                     .shadow(color: .black.opacity(0.22), radius: 6, x: 0, y: 4)
                     .position(x: planeX, y: h * 0.22)
-                }
                 .onAppear {
                     withAnimation(.linear(duration: 4.5)) {
                         planeProgress = 1.0
