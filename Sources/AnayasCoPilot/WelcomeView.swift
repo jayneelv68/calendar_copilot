@@ -39,21 +39,25 @@ struct WelcomeView: View {
 
             // Welcome card.
             VStack(spacing: 18) {
-                Image(systemName: "airplane")
-                    .font(.system(size: 44, weight: .semibold))
-                    .foregroundColor(personalization.planeColor)
+                PlaneIcon(color: personalization.planeColor, size: 76)
                 Text(personalization.welcomeMessage)
-                    .font(.system(size: 30, weight: .bold, design: .rounded))
+                    // New York serif — display weight for the headline.
+                    .font(.system(size: 34, weight: .bold, design: .serif))
+                    .tracking(-0.2)
                     .multilineTextAlignment(.center)
                     .foregroundColor(.primary)
                 Text(personalization.welcomeSubtitle)
-                    .font(.system(size: 17, weight: .regular, design: .rounded))
+                    // SF Pro at a generous line spacing for body copy.
+                    .font(.system(size: 17, weight: .regular, design: .default))
+                    .tracking(0.1)
+                    .lineSpacing(4)
                     .multilineTextAlignment(.center)
                     .foregroundColor(.secondary)
-                    .padding(.horizontal, 12)
+                    .padding(.horizontal, 16)
                 Button(action: onDismiss) {
-                    Text("Let's go ✈️")
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    Text("Let's go")
+                        .font(.system(size: 16, weight: .semibold, design: .default))
+                        .tracking(0.4)
                         .padding(.horizontal, 28)
                         .padding(.vertical, 12)
                         .background(

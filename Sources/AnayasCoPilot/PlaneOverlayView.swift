@@ -54,19 +54,6 @@ struct PlaneIcon: View {
     }
 }
 
-struct DottedContrailView: View {
-    var color: Color
-    var body: some View {
-        HStack(spacing: 6) {
-            ForEach(0..<14, id: \.self) { i in
-                Circle()
-                    .fill(color.opacity(1.0 - Double(i) * 0.06))
-                    .frame(width: CGFloat(6 - i/4), height: CGFloat(6 - i/4))
-            }
-        }
-    }
-}
-
 struct SparkleParticle: Identifiable {
     let id = UUID()
     let dx: CGFloat
@@ -102,7 +89,7 @@ struct PlaneFlightView: View {
             let h = geo.size.height
             let planeW: CGFloat = 120
             let planeH: CGFloat = 70
-            let bannerW: CGFloat = max(360, CGFloat(bannerText.count) * 14 + 80)
+            let bannerW: CGFloat = max(420, CGFloat(bannerText.count) * 18 + 88)
             let bannerH: CGFloat = 70
             let y = h * 0.32
             // Plane travels from -200 → w+200 as phase 0 → 1.
@@ -120,25 +107,15 @@ struct PlaneFlightView: View {
                         )
                         .shadow(color: .black.opacity(0.18), radius: 10, x: 0, y: 5)
                     Text(bannerText)
-                        .font(.system(size: 28, weight: .semibold, design: .rounded))
+                        // New York (Apple's display serif) — refined, designer-grade.
+                        .font(.system(size: 30, weight: .semibold, design: .serif))
+                        .tracking(0.3)
                         .foregroundColor(personalization.bannerTextColor)
                         .lineLimit(1)
-                        .padding(.horizontal, 24)
+                        .padding(.horizontal, 28)
                 }
                 .frame(width: bannerW, height: bannerH)
-                .position(x: planeX - bannerW/2 - 30, y: y + planeH/2)
-
-                // Tow line.
-                Path { p in
-                    p.move(to: CGPoint(x: planeX - 30, y: y + planeH/2))
-                    p.addLine(to: CGPoint(x: planeX - bannerW - 30, y: y + planeH/2))
-                }
-                .stroke(personalization.planeColor.opacity(0.6),
-                        style: StrokeStyle(lineWidth: 2, dash: [4, 4]))
-
-                // Dotted contrail behind plane.
-                DottedContrailView(color: personalization.planeColor)
-                    .position(x: planeX + planeW + 40, y: y + planeH/2)
+                .position(x: planeX - bannerW/2 - 28, y: y + planeH/2)
 
                 // Plane — Apple's SF Symbol airplane, tinted and flying right.
                 PlaneIcon(color: personalization.planeColor, size: planeW)
