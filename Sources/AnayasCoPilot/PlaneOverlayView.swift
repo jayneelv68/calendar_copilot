@@ -2,7 +2,7 @@ import SwiftUI
 
 // Side-view jet drawn from scratch so the orientation is guaranteed horizontal,
 // nose pointing right. Built as a union of four simple subpaths (fuselage,
-// nose cone, tail fin, swept wing) — non-zero fill rule unions them cleanly.
+// nose cone, tail fin, swept wing): non-zero fill rule unions them cleanly.
 struct PlaneShape: Shape {
     func path(in rect: CGRect) -> Path {
         var p = Path()
@@ -92,9 +92,13 @@ struct PlaneFlightView: View {
             let bannerW: CGFloat = max(420, CGFloat(bannerText.count) * 18 + 88)
             let bannerH: CGFloat = 70
             let y = h * 0.32
-            // Plane travels from -200 → w+200 as phase 0 → 1.
-            let totalDist = w + 400
-            let planeX = -200 + totalDist * phase
+            // The banner trails the plane to the LEFT, so for the *whole rig*
+            // (banner + plane) to fly fully off both edges, the plane has to
+            // travel past w by at least bannerW worth of extra distance.
+            let leadIn: CGFloat = bannerW + 140
+            let leadOut: CGFloat = bannerW + 140
+            let totalDist = w + leadIn + leadOut
+            let planeX = -leadIn + totalDist * phase
 
             ZStack {
                 // Banner trailing plane.
@@ -107,7 +111,7 @@ struct PlaneFlightView: View {
                         )
                         .shadow(color: .black.opacity(0.18), radius: 10, x: 0, y: 5)
                     Text(bannerText)
-                        // New York (Apple's display serif) — refined, designer-grade.
+                        // New York (Apple's display serif): refined, designer-grade.
                         .font(.system(size: 30, weight: .semibold, design: .serif))
                         .tracking(0.3)
                         .foregroundColor(personalization.bannerTextColor)
@@ -117,7 +121,7 @@ struct PlaneFlightView: View {
                 .frame(width: bannerW, height: bannerH)
                 .position(x: planeX - bannerW/2 - 28, y: y + planeH/2)
 
-                // Plane — Apple's SF Symbol airplane, tinted and flying right.
+                // Plane: Apple's SF Symbol airplane, tinted and flying right.
                 PlaneIcon(color: personalization.planeColor, size: planeW)
                     .shadow(color: .black.opacity(0.22), radius: 6, x: 0, y: 4)
                     .position(x: planeX, y: y + planeH/2)

@@ -21,7 +21,7 @@ final class OverlayWindow: NSWindow {
     }
 }
 
-// Welcome window — same overlay, but accepts clicks for the "Let's go" button.
+// Welcome window: same overlay, but accepts clicks for the "Let's go" button.
 final class WelcomeWindow: NSWindow {
     init(contentView: NSView) {
         let screen = NSScreen.main ?? NSScreen.screens.first!

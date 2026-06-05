@@ -50,7 +50,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func requestCalendarThenStart() {
         calendar.requestAccess { [weak self] granted in
             if !granted {
-                fputs("[calendar] access not granted — running idle.\n", stderr)
+                fputs("[calendar] access not granted: running idle.\n", stderr)
             }
             self?.startPolling()
         }
@@ -148,7 +148,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             let df = DateFormatter()
             df.dateFormat = "h:mm a"
             for e in upcoming {
-                let title = "  \(df.string(from: e.startDate)) — \(e.title ?? "(untitled)")"
+                let title = "  \(df.string(from: e.startDate)): \(e.title ?? "(untitled)")"
                 let item = NSMenuItem(title: title, action: nil, keyEquivalent: "")
                 item.isEnabled = false
                 menu.addItem(item)

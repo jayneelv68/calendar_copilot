@@ -25,7 +25,7 @@ Demos: `--demo`, `--demo-special`, `--demo-welcome` on the binary inside the app
 
 ## Calendar permission
 
-The very first launch triggers macOS's calendar consent dialog. Anaya clicks **Allow** once and that's it — the prompt comes from the system and cannot be auto-approved.
+The very first launch triggers macOS's calendar consent dialog. Anaya clicks **Allow** once and that's it: the prompt comes from the system and cannot be auto-approved.
 
 ## Install for Anaya
 
@@ -33,21 +33,21 @@ The very first launch triggers macOS's calendar consent dialog. Anaya clicks **A
 2. Drag **Anaya's Co-Pilot** to **Applications**.
 3. Double-click the app.
 4. Approve calendar access when macOS asks.
-5. The app registers itself as a login item — it'll start silently on every login from then on.
+5. The app registers itself as a login item: it'll start silently on every login from then on.
 
 ## Personalization
 
 Everything Anaya-specific lives in [`Sources/AnayasCoPilot/Personalization.swift`](Sources/AnayasCoPilot/Personalization.swift):
 
-- `ownerName` — currently "Anaya".
-- `welcomeMessage`, `welcomeSubtitle` — first-launch hello (alternates are commented in the file).
-- `bannerLines` — rotating playful copy; `{who}` is replaced by attendee or event title.
-- `bannerFallbackNoTitle` — used when no name/title is available.
-- `planeColor`, `bannerGradientStart`, `bannerGradientEnd`, `bannerTextColor` — visuals.
-- `flightDurationSeconds`, `leadMinutes` — timing.
-- `specialDates: [MonthDay: String]` — date overrides (e.g. birthday banner). Commented example included.
-- `style` — `.warm` (default) or `.subtle`.
+- `ownerName`: currently "Anaya".
+- `welcomeMessage`, `welcomeSubtitle`: first-launch hello (alternates are commented in the file).
+- `bannerLines`: rotating playful copy; `{who}` is replaced by attendee or event title.
+- `bannerFallbackNoTitle`: used when no name/title is available.
+- `planeColor`, `bannerGradientStart`, `bannerGradientEnd`, `bannerTextColor`: visuals.
+- `flightDurationSeconds`, `leadMinutes`: timing.
+- `specialDates: [MonthDay: String]`: date overrides (e.g. birthday banner). Commented example included.
+- `style`: `.warm` (default) or `.subtle`.
 
 ## Build status
 
-- **v1.0** — builds cleanly, all 14 unit tests pass, `--demo`, `--demo-special`, `--demo-welcome` verified launching without crash, normal run verified staying alive in menu bar with graceful no-calendar-access fallback. Signing/notarization pending Developer ID cert + notary-profile.
+- **v1.0**: builds cleanly, all 14 unit tests pass, `--demo`, `--demo-special`, `--demo-welcome` verified launching without crash, normal run verified staying alive in menu bar with graceful no-calendar-access fallback. Signing/notarization pending Developer ID cert + notary-profile.

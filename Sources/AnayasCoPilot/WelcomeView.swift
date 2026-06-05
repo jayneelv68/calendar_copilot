@@ -41,7 +41,7 @@ struct WelcomeView: View {
             VStack(spacing: 18) {
                 PlaneIcon(color: personalization.planeColor, size: 76)
                 Text(personalization.welcomeMessage)
-                    // New York serif — display weight for the headline.
+                    // New York serif: display weight for the headline.
                     .font(.system(size: 34, weight: .bold, design: .serif))
                     .tracking(-0.2)
                     .multilineTextAlignment(.center)
