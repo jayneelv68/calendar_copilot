@@ -69,7 +69,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let now = Date()
         let events = calendar.upcomingEvents(within: TimeInterval(personalization.leadMinutes * 60), from: now)
         let due = scheduler.eventsToFire(now: now, events: events)
+        let df = ISO8601DateFormatter()
+        fputs("[tick \(df.string(from: now))] window-visible=\(events.count) due=\(due.count)\n", stderr)
         for e in due {
+            fputs("[FIRE] id=\(e.id) title=\(e.title ?? "nil") start=\(df.string(from: e.startDate))\n", stderr)
             scheduler.markFired(e.id)
             let copy = BannerCopy(personalization: personalization)
             let text = copy.bannerText(for: e, on: now)
