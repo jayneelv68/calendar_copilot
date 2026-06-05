@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 
 @MainActor
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var statusItem: NSStatusItem!
     private let personalization = Personalization.default
     private let calendar = CalendarSource()
@@ -62,6 +62,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             MainActor.assumeIsolated { self?.tick() }
         }
         RunLoop.main.add(pollTimer!, forMode: .common)
+        // Re-tick as soon as the underlying event store changes (e.g. user
+        // edits a meeting in Calendar.app), instead of waiting up to 30s.
+        NotificationCenter.default.addObserver(
+            forName: .EKEventStoreChanged,
+            object: calendar.store,
+            queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated { self?.tick() }
+        }
         tick()
     }
 
@@ -73,7 +82,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         fputs("[tick \(df.string(from: now))] window-visible=\(events.count) due=\(due.count)\n", stderr)
         for e in due {
             fputs("[FIRE] id=\(e.id) title=\(e.title ?? "nil") start=\(df.string(from: e.startDate))\n", stderr)
-            scheduler.markFired(e.id)
+            scheduler.markFired(e)
             let copy = BannerCopy(personalization: personalization)
             let text = copy.bannerText(for: e, on: now)
             OverlayPresenter.shared.showFlight(bannerText: text, personalization: personalization)
@@ -99,12 +108,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     // MARK: - Menu bar
+    private var statusMenu: NSMenu!
+
     private func installStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         if let button = statusItem.button {
             button.image = Self.makeMenubarPlaneIcon()
         }
-        rebuildMenu()
+        let menu = NSMenu()
+        menu.delegate = self
+        statusMenu = menu
+        statusItem.menu = menu
+        populateMenu(menu)
     }
 
     // Render the same horizontal PlaneShape used everywhere into a small template
@@ -126,7 +141,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func rebuildMenu() {
-        let menu = NSMenu()
+        guard let menu = statusMenu else { return }
+        populateMenu(menu)
+    }
+
+    private func populateMenu(_ menu: NSMenu) {
+        menu.removeAllItems()
         let greeting = NSMenuItem(title: timeOfDayGreeting(for: Date(), name: personalization.ownerName),
                                   action: nil, keyEquivalent: "")
         greeting.isEnabled = false
@@ -167,8 +187,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         menu.addItem(.separator())
         menu.addItem(withTitle: "Quit", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
-
-        statusItem.menu = menu
     }
 
     private func nextThreeEvents() -> [CopilotEvent] {
@@ -186,6 +204,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let nowOn = LoginItem.isRegistered
         _ = LoginItem.setEnabled(!nowOn)
         rebuildMenu()
+    }
+
+    // Re-query the calendar every time the menu opens so "Upcoming" reflects
+    // the user's latest edits in Calendar.app, not whatever was true at launch.
+    func menuNeedsUpdate(_ menu: NSMenu) {
+        populateMenu(menu)
     }
 }
 

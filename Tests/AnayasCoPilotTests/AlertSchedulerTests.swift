@@ -40,9 +40,22 @@ final class AlertSchedulerTests: XCTestCase {
         let e = makeEvent(minutesFromNow: 3, now: now)
         let first = s.eventsToFire(now: now, events: [e])
         XCTAssertEqual(first.count, 1)
-        s.markFired(e.id)
+        s.markFired(e)
         let second = s.eventsToFire(now: now, events: [e])
         XCTAssertTrue(second.isEmpty)
+    }
+
+    func testFiresAgainWhenEventRescheduled() {
+        let s = AlertScheduler(leadMinutes: 5)
+        let now = Date()
+        let original = makeEvent(id: "x", minutesFromNow: 3, now: now)
+        XCTAssertEqual(s.eventsToFire(now: now, events: [original]).count, 1)
+        s.markFired(original)
+        XCTAssertTrue(s.eventsToFire(now: now, events: [original]).isEmpty)
+        // User moves the same event to a different (still-in-window) start time.
+        let moved = makeEvent(id: "x", minutesFromNow: 4, now: now)
+        XCTAssertEqual(s.eventsToFire(now: now, events: [moved]).count, 1,
+                       "rescheduled event should fire again")
     }
 
     func testDoesNotFirePastEvents() {

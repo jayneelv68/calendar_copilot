@@ -4,7 +4,9 @@ import Foundation
 // return the events that should fire right now. Injectable for tests.
 public final class AlertScheduler {
     public let leadSeconds: TimeInterval
-    public var firedIDs: Set<String> = []
+    // id -> startDate at fire time. If the user reschedules an event, its
+    // startDate changes and we treat that as a fresh commitment worth alerting.
+    public var firedRecords: [String: Date] = [:]
 
     public init(leadMinutes: Int) {
         self.leadSeconds = TimeInterval(leadMinutes * 60)
@@ -14,11 +16,9 @@ public final class AlertScheduler {
         var out: [CopilotEvent] = []
         for e in events {
             if e.isAllDay { continue }
-            if firedIDs.contains(e.id) { continue }
+            if firedRecords[e.id] == e.startDate { continue }
             let delta = e.startDate.timeIntervalSince(now)
             // Fire when start is within (0, leadSeconds].
-            // delta <= leadSeconds means we're within the 5-minute lead window.
-            // delta > 0 means it hasn't started yet.
             if delta > 0 && delta <= leadSeconds {
                 out.append(e)
             }
@@ -26,5 +26,7 @@ public final class AlertScheduler {
         return out
     }
 
-    public func markFired(_ id: String) { firedIDs.insert(id) }
+    public func markFired(_ event: CopilotEvent) {
+        firedRecords[event.id] = event.startDate
+    }
 }

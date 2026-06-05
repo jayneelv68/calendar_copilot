@@ -3,7 +3,7 @@ import EventKit
 
 // EventKit-backed EventProviding. Falls back to empty when access is missing.
 public final class CalendarSource: EventProviding {
-    private let store = EKEventStore()
+    public let store = EKEventStore()
     private(set) var hasAccess: Bool = false
 
     public init() {}
