@@ -1,32 +1,32 @@
 import SwiftUI
 
-// Vector plane drawn in code — friendly rounded body, warm pink.
+// Sleek paper-airplane silhouette drawn in code. Points forward (right),
+// crisp angular planes, reads cleanly at any size.
 struct PlaneShape: Shape {
     func path(in rect: CGRect) -> Path {
         var p = Path()
         let w = rect.width, h = rect.height
-        // Fuselage as rounded ellipse.
-        p.addEllipse(in: CGRect(x: 0, y: h*0.32, width: w*0.78, height: h*0.36))
-        // Nose dome.
-        p.addEllipse(in: CGRect(x: w*0.62, y: h*0.34, width: w*0.30, height: h*0.32))
-        // Tail fin.
-        var tail = Path()
-        tail.move(to: CGPoint(x: w*0.02, y: h*0.42))
-        tail.addLine(to: CGPoint(x: w*0.18, y: h*0.05))
-        tail.addLine(to: CGPoint(x: w*0.30, y: h*0.05))
-        tail.addLine(to: CGPoint(x: w*0.22, y: h*0.45))
-        tail.closeSubpath()
-        p.addPath(tail)
-        // Wing underneath.
-        var wing = Path()
-        wing.move(to: CGPoint(x: w*0.28, y: h*0.58))
-        wing.addLine(to: CGPoint(x: w*0.46, y: h*0.92))
-        wing.addLine(to: CGPoint(x: w*0.62, y: h*0.92))
-        wing.addLine(to: CGPoint(x: w*0.56, y: h*0.62))
-        wing.closeSubpath()
-        p.addPath(wing)
-        // Window.
-        p.addEllipse(in: CGRect(x: w*0.58, y: h*0.42, width: w*0.08, height: h*0.12))
+        // Outer paper-airplane outline:
+        //   nose at the right, swept-back tail on the left, slight underside notch.
+        p.move(to: CGPoint(x: w * 1.00, y: h * 0.50))   // nose tip
+        p.addLine(to: CGPoint(x: w * 0.10, y: h * 0.05)) // top tail corner
+        p.addLine(to: CGPoint(x: w * 0.32, y: h * 0.50)) // inner crease meeting nose
+        p.addLine(to: CGPoint(x: w * 0.10, y: h * 0.95)) // bottom tail corner
+        p.closeSubpath()
+        return p
+    }
+}
+
+// Folded-paper crease — slightly darker triangle inside the outline that
+// gives the plane its 3D paper look without needing layers of fill.
+struct PlaneCreaseShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var p = Path()
+        let w = rect.width, h = rect.height
+        p.move(to: CGPoint(x: w * 1.00, y: h * 0.50))   // nose
+        p.addLine(to: CGPoint(x: w * 0.10, y: h * 0.95)) // bottom tail
+        p.addLine(to: CGPoint(x: w * 0.32, y: h * 0.50)) // crease pivot
+        p.closeSubpath()
         return p
     }
 }
@@ -117,12 +117,16 @@ struct PlaneFlightView: View {
                 DottedContrailView(color: personalization.planeColor)
                     .position(x: planeX + planeW + 40, y: y + planeH/2)
 
-                // Plane.
-                PlaneShape()
-                    .fill(personalization.planeColor)
-                    .frame(width: planeW, height: planeH)
-                    .shadow(color: .black.opacity(0.2), radius: 6, x: 0, y: 4)
-                    .position(x: planeX, y: y + planeH/2)
+                // Plane — paper-airplane silhouette plus a darker crease for depth.
+                ZStack {
+                    PlaneShape().fill(personalization.planeColor)
+                    PlaneCreaseShape()
+                        .fill(personalization.planeColor.opacity(0.55))
+                        .blendMode(.multiply)
+                }
+                .frame(width: planeW, height: planeH)
+                .shadow(color: .black.opacity(0.22), radius: 6, x: 0, y: 4)
+                .position(x: planeX, y: y + planeH/2)
 
                 // Sparkle puff near end.
                 if puff {
