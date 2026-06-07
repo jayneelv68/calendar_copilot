@@ -11,21 +11,31 @@ BUNDLE_ID="com.local.anayacopilot"
 
 cd "$ROOT"
 
-echo "==> swift build -c $CONFIG"
-swift build -c "$CONFIG"
+# Build a universal binary (arm64 + x86_64) so the app runs on both Apple Silicon
+# and Intel Macs. SwiftPM doesn't produce a fat binary natively, so we build each
+# arch separately and lipo them together.
+echo "==> swift build -c $CONFIG (arm64)"
+swift build -c "$CONFIG" --triple arm64-apple-macosx13.0
+ARM_BIN="$(swift build -c "$CONFIG" --triple arm64-apple-macosx13.0 --show-bin-path)/AnayasCoPilot"
 
-BIN_PATH="$(swift build -c "$CONFIG" --show-bin-path)/AnayasCoPilot"
-if [ ! -f "$BIN_PATH" ]; then
-    echo "ERROR: built binary not found at $BIN_PATH" >&2
-    exit 1
-fi
+echo "==> swift build -c $CONFIG (x86_64)"
+swift build -c "$CONFIG" --triple x86_64-apple-macosx13.0
+X86_BIN="$(swift build -c "$CONFIG" --triple x86_64-apple-macosx13.0 --show-bin-path)/AnayasCoPilot"
+
+for b in "$ARM_BIN" "$X86_BIN"; do
+    if [ ! -f "$b" ]; then
+        echo "ERROR: missing built binary: $b" >&2
+        exit 1
+    fi
+done
 
 echo "==> assembling .app bundle at $APP_DIR"
 rm -rf "$APP_DIR"
 mkdir -p "$APP_DIR/Contents/MacOS"
 mkdir -p "$APP_DIR/Contents/Resources"
-cp "$BIN_PATH" "$APP_DIR/Contents/MacOS/AnayasCoPilot"
+lipo -create "$ARM_BIN" "$X86_BIN" -output "$APP_DIR/Contents/MacOS/AnayasCoPilot"
 chmod +x "$APP_DIR/Contents/MacOS/AnayasCoPilot"
+echo "    archs in fat binary: $(lipo -archs "$APP_DIR/Contents/MacOS/AnayasCoPilot")"
 
 cat > "$APP_DIR/Contents/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -39,7 +49,7 @@ cat > "$APP_DIR/Contents/Info.plist" <<EOF
     <key>CFBundleVersion</key><string>1</string>
     <key>CFBundleShortVersionString</key><string>1.0</string>
     <key>CFBundlePackageType</key><string>APPL</string>
-    <key>LSMinimumSystemVersion</key><string>14.0</string>
+    <key>LSMinimumSystemVersion</key><string>13.0</string>
     <key>LSUIElement</key><true/>
     <key>NSCalendarsUsageDescription</key>
     <string>Anaya's Co-Pilot reads your calendar so a little airplane can fly across the screen ~5 minutes before each meeting.</string>
